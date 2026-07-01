@@ -1,0 +1,40 @@
+name: Monitor BSP
+
+on:
+  schedule:
+    # Ogni 30 minuti. Nota: GitHub Actions può avere qualche minuto di ritardo
+    # nei periodi di alto carico, ma per questo uso va benissimo.
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}  # permette di lanciarlo manualmente da GitHub per test
+
+permissions:
+  contents: write  # serve per salvare lo stato (state.json) nel repo
+
+jobs:
+  check-bsp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installa dipendenze
+        run: pip install -r requirements.txt
+
+      - name: Esegui monitor
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python monitor_bsp.py
+
+      - name: Salva stato aggiornato
+        run: |
+          git config user.name "bsp-monitor-bot"
+          git config user.email "actions@github.com"
+          git add state.json
+          git diff --quiet --cached || git commit -m "Aggiorna stato monitor BSP"
+          git push
