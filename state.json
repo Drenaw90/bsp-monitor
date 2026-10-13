@@ -1,6 +1,6 @@
 {
   "alerted_low_price": false,
-  "alerted_high_price": false,
-  "alerted_ipo_deviation": false,
+  "alerted_high_price": true,
+  "alerted_ipo_deviation": true,
   "last_daily_pct_alert_date": null
 }
